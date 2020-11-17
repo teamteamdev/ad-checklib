@@ -31,7 +31,8 @@ class CheckerException(Exception):
     def process(self):
         """Print message and raise SystemExit with provided code."""
         print(self.message)
-        sys.exit(self.code)
+        print("Check finished with code", self.code.value, file=sys.stderr)
+        sys.exit(self.code.value)
 
 
 class OK(CheckerException):
