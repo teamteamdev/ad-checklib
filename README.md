@@ -5,7 +5,7 @@
 ## Пример чекера
 
 ```python
-from adchecklib import BaseChecker, OK
+from adchecklib import BaseChecker, OK, Corrupt, Down
 
 class MyChecker(BaseChecker):
     def __init__(self):
@@ -15,12 +15,21 @@ class MyChecker(BaseChecker):
         raise OK
 
     def get(self, host, flag_id, flag, vuln):
-        raise OK
+        self.logger.error("Expected %s, got nothing", flag)
+        raise Corrupt("Flag is wrong")
 
     def check(self, host):
-        raise OK
+        raise Down
 
 MyChecker().run()
+```
+
+## Установка
+
+Вам понадобится Python 3.6, pip и setuptools.
+
+```bash
+pip install git+https://github.com/ugractf/ad-checklib#egg=adchecklib
 ```
 
 ## Описание
