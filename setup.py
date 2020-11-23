@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="adchecklib",
-    version="0.2.2",
+    version="0.3.0",
     author="Nikita Sychev",
     author_email="team@teamteam.dev",
     description="Attack-Defense checker library",

@@ -2,6 +2,7 @@
 Sample module for writing your own A—D checker.
 """
 
+import asyncio
 import enum
 import logging
 import sys
@@ -78,7 +79,7 @@ class BaseChecker:
         self.vulns = f'vulns:{":".join(map(str, vulns or [1]))}'
         self.logger = logging.getLogger('checker')
 
-    def get(self, host, flag_id, flag, vuln):
+    async def get(self, host, flag_id, flag, vuln):
         """
         Checks if flag is present at host.
 
@@ -92,7 +93,7 @@ class BaseChecker:
         """
         raise NotImplementedError
 
-    def put(self, host, flag_id, flag, vuln):
+    async def put(self, host, flag_id, flag, vuln):
         """
         Puts a flag to host.
 
@@ -111,7 +112,7 @@ class BaseChecker:
         """
         raise NotImplementedError
 
-    def check(self, host):
+    async def check(self, host):
         """
         Checks a host is working correctly.
 
@@ -122,13 +123,8 @@ class BaseChecker:
         """
         raise NotImplementedError
 
-    def run(self, argline=None):
-        """
-        Runs a check.
-
-        You may pass argline to use instead sys.argv if you're using some library which corrupts it
-        (like pwntools).
-        """
+    async def async_run(self, argline=None):
+        """Runs a check inside an asynchronous loop."""
         if argline is None:
             argline = sys.argv
         _, action, *args = argline
@@ -138,13 +134,13 @@ class BaseChecker:
                 raise CheckerException(CheckerStatus.OK, self.vulns)
             elif action == "check":
                 host, = args
-                self.check(host)
+                await self.check(host)
             elif action == "put":
                 host, flag_id, flag, vuln = args
-                self.put(host, flag_id, flag, vuln)
+                await self.put(host, flag_id, flag, vuln)
             elif action == "get":
                 host, flag_id, flag, vuln = args
-                self.get(host, flag_id, flag, vuln)
+                await self.get(host, flag_id, flag, vuln)
             else:
                 self.logger.error("Unknown action %s", action)
                 self.logger.error("All args: %s", argline)
@@ -157,3 +153,12 @@ class BaseChecker:
         except: # pylint: disable=bare-except
             traceback.print_exc()
             CheckerError().process()
+
+    def run(self, argline=None):
+        """
+        Runs a check.
+
+        You may pass argline to use instead sys.argv if you're using some library which corrupts it
+        (like pwntools).
+        """
+        asyncio.get_event_loop().run_until_complete(self.async_run(argline))

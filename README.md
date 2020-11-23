@@ -11,14 +11,14 @@ class MyChecker(BaseChecker):
     def __init__(self):
         super().__init__(vulns=[2, 1])
 
-    def put(self, host, flag_id, flag, vuln):
+    async def put(self, host, flag_id, flag, vuln):
         raise OK
 
-    def get(self, host, flag_id, flag, vuln):
+    async def get(self, host, flag_id, flag, vuln):
         self.logger.error("Expected %s, got nothing", flag)
         raise Corrupt("Flag is wrong")
 
-    def check(self, host):
+    async def check(self, host):
         raise Down
 
 MyChecker().run()
@@ -85,3 +85,7 @@ super().__init__()
 Проверьте работоспособность функционала сервиса. Аргументы:
 
 * `host` — IP-адрес или хостнейм вулнбокса
+
+### Про асинхронность
+
+Функции `check`, `put` и `get` асинхронные. Если вы не используете `asyncio`, то просто допишите `async` перед названием функций и не думайте об остальном.
