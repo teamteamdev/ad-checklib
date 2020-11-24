@@ -149,6 +149,8 @@ class BaseChecker:
             self.logger.error("Action handler must throw a subclass of CheckerException.")
             raise CheckerError
         except CheckerException as exc:
+            if exc.code != 101:
+                self.logger.exception(exc)
             exc.process()
         except: # pylint: disable=bare-except
             traceback.print_exc()
